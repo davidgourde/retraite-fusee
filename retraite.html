@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mission Retraite — David</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Orbitron:wght@400;700;900&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --space-black: #020510;
+    --deep-navy: #050d1f;
+    --nebula-blue: #0a1a3a;
+    --aurora-cyan: #00e5ff;
+    --aurora-green: #00ff9d;
+    --solar-gold: #ffd54f;
+    --rocket-orange: #ff6b35;
+    --star-white: #e8f4fd;
+    --dim-blue: #1a3a6a;
+    --text-dim: #4a7a9b;
+    --progress-glow: 0 0 20px rgba(0,229,255,0.4), 0 0 40px rgba(0,229,255,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--space-black);
+    color: var(--star-white);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 20px; height: 20px;
+    border: 2px solid var(--aurora-cyan);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease, border-color 0.3s;
+    mix-blend-mode: screen;
+  }
+  .cursor-dot {
+    width: 4px; height: 4px;
+    background: var(--aurora-cyan);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Stars background */
+  .stars-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    animation: twinkle var(--d, 3s) infinite alternate ease-in-out;
+  }
+
+  @keyframes twinkle {
+    0% { opacity: var(--min-op, 0.1); transform: scale(1); }
+    100% { opacity: var(--max-op, 0.8); transform: scale(1.2); }
+  }
+
+  /* Nebula background */
+  .nebula {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 20%, rgba(0,60,120,0.3) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 90% 80%, rgba(0,100,60,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse 100% 50% at 50% 50%, rgba(5,15,40,0.8) 0%, transparent 70%);
+  }
+
+  /* Main layout */
+  .app {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Header */
+  .header {
+    width: 100%;
+    padding: 40px 60px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .mission-badge {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mission-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--aurora-cyan);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .mission-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--star-white);
+    letter-spacing: 2px;
+  }
+
+  .mission-title span {
+    color: var(--aurora-green);
+  }
+
+  .date-display {
+    text-align: right;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    line-height: 1.8;
+  }
+
+  .date-display .live-date {
+    color: var(--aurora-cyan);
+    font-size: 13px;
+  }
+
+  /* Main center section */
+  .main-content {
+    flex: 1;
+    width: 100%;
+    max-width: 1100px;
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+  }
+
+  /* Big progress number */
+  .hero-progress {
+    text-align: center;
+    position: relative;
+    margin-top: 10px;
+  }
+
+  .progress-percentage {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(80px, 15vw, 160px);
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--aurora-cyan), var(--aurora-green), var(--solar-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(0,229,255,0.3));
+    animation: pulseGlow 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulseGlow {
+    0% { filter: drop-shadow(0 0 20px rgba(0,229,255,0.2)); }
+    100% { filter: drop-shadow(0 0 50px rgba(0,229,255,0.5)); }
+  }
+
+  .progress-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 6px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-top: -5px;
+  }
+
+  .progress-subtitle {
+    font-size: 15px;
+    color: var(--aurora-cyan);
+    margin-top: 8px;
+    opacity: 0.8;
+    font-weight: 300;
+  }
+
+  /* Orbit track */
+  .orbit-section {
+    width: 100%;
+    position: relative;
+    padding: 20px 0;
+  }
+
+  .orbit-track {
+    position: relative;
+    height: 120px;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(0,229,255,0.03) 20%,
+      rgba(0,229,255,0.06) 50%,
+      rgba(0,229,255,0.03) 80%,
+      transparent 100%
+    );
+    border-top: 1px solid rgba(0,229,255,0.1);
+    border-bottom: 1px solid rgba(0,229,255,0.1);
+  }
+
+  .orbit-line {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    right: 5%;
+    height: 2px;
+    background: linear-gradient(90deg,
+      transparent,
+      rgba(0,229,255,0.2) 10%,
+      rgba(0,229,255,0.4) 50%,
+      rgba(0,229,255,0.15) 90%,
+      transparent
+    );
+    transform: translateY(-50%);
+  }
+
+  /* Rocket */
+  .rocket-container {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 20;
+    transition: left 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .rocket {
+    font-size: 48px;
+    filter: drop-shadow(0 0 15px rgba(255,107,53,0.6));
+    transform: rotate(90deg);
+    animation: rocketFloat 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes rocketFloat {
+    0% { transform: rotate(90deg) translateY(-3px); }
+    100% { transform: rotate(90deg) translateY(3px); }
+  }
+
+  .rocket-trail {
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,107,53,0.3), rgba(255,213,79,0.6));
+    filter: blur(1px);
+  }
+
+  /* Start / End markers */
+  .track-start, .track-end {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .track-start { left: 5%; }
+  .track-end { right: 5%; }
+
+  .track-marker-icon {
+    font-size: 24px;
+  }
+
+  .track-marker-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+
+  .track-marker-date {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    color: var(--aurora-green);
+    white-space: nowrap;
+  }
+
+  /* Progression bar */
+  .progress-bar-section {
+    width: 100%;
+  }
+
+  .progress-bar-wrapper {
+    position: relative;
+    height: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: visible;
+    border: 1px solid rgba(0,229,255,0.1);
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--aurora-cyan), var(--aurora-green));
+    box-shadow: var(--progress-glow);
+    position: relative;
+    transition: width 2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .progress-bar-fill::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translate(50%, -50%);
+    width: 16px;
+    height: 16px;
+    background: var(--aurora-cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(0,229,255,0.2), 0 0 20px rgba(0,229,255,0.6);
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes dotPulse {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(0,229,255,0.2), 0 0 20px rgba(0,229,255,0.6); }
+    50% { box-shadow: 0 0 0 8px rgba(0,229,255,0.1), 0 0 40px rgba(0,229,255,0.8); }
+  }
+
+  .progress-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    width: 100%;
+  }
+
+  .stat-card {
+    background: linear-gradient(135deg, rgba(10,26,58,0.8), rgba(5,13,31,0.9));
+    border: 1px solid rgba(0,229,255,0.08);
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+    cursor: default;
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,229,255,0.03), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0,229,255,0.25);
+  }
+
+  .stat-card:hover::before { opacity: 1; }
+
+  .stat-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+    filter: saturate(1.5);
+  }
+
+  .stat-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--star-white);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-value.accent-cyan { color: var(--aurora-cyan); }
+  .stat-value.accent-green { color: var(--aurora-green); }
+  .stat-value.accent-gold { color: var(--solar-gold); }
+  .stat-value.accent-orange { color: var(--rocket-orange); }
+
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 4px;
+  }
+
+  /* Daily dose section */
+  .daily-section {
+    width: 100%;
+    background: linear-gradient(135deg, rgba(10,26,58,0.6), rgba(5,13,31,0.8));
+    border: 1px solid rgba(0,229,255,0.08);
+    border-radius: 20px;
+    padding: 32px 40px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .daily-left {
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  .daily-icon-big {
+    font-size: 60px;
+    display: block;
+    animation: spin 10s linear infinite;
+    filter: drop-shadow(0 0 20px rgba(255,213,79,0.5));
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .daily-right {
+    flex: 1;
+  }
+
+  .daily-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--solar-gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+
+  .daily-message {
+    font-size: 18px;
+    color: var(--star-white);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .daily-message strong {
+    color: var(--aurora-green);
+    font-weight: 500;
+  }
+
+  .daily-streak {
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .streak-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+  }
+
+  .streak-days {
+    display: flex;
+    gap: 4px;
+  }
+
+  .streak-day {
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .streak-day.filled {
+    background: var(--aurora-green);
+    box-shadow: 0 0 6px rgba(0,255,157,0.5);
+  }
+
+  /* Timeline milestones */
+  .milestones-section {
+    width: 100%;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    letter-spacing: 4px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(0,229,255,0.2), transparent);
+  }
+
+  .milestones-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 32px;
+  }
+
+  .milestones-list::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: linear-gradient(180deg, var(--aurora-cyan), rgba(0,229,255,0.1));
+  }
+
+  .milestone {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 0;
+    position: relative;
+    transition: opacity 0.3s;
+  }
+
+  .milestone-dot {
+    position: absolute;
+    left: -27px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid;
+    background: var(--space-black);
+    flex-shrink: 0;
+    transition: box-shadow 0.3s;
+  }
+
+  .milestone.past .milestone-dot {
+    border-color: var(--aurora-green);
+    background: var(--aurora-green);
+    box-shadow: 0 0 12px rgba(0,255,157,0.5);
+  }
+
+  .milestone.current .milestone-dot {
+    border-color: var(--solar-gold);
+    background: var(--solar-gold);
+    box-shadow: 0 0 12px rgba(255,213,79,0.6);
+    animation: dotPulseCurrent 2s ease-in-out infinite;
+  }
+
+  @keyframes dotPulseCurrent {
+    0%, 100% { box-shadow: 0 0 8px rgba(255,213,79,0.5); }
+    50% { box-shadow: 0 0 20px rgba(255,213,79,0.9); }
+  }
+
+  .milestone.future .milestone-dot {
+    border-color: rgba(0,229,255,0.2);
+    opacity: 0.5;
+  }
+
+  .milestone-date {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    min-width: 80px;
+  }
+
+  .milestone.past .milestone-date { color: var(--aurora-green); opacity: 0.7; }
+  .milestone.current .milestone-date { color: var(--solar-gold); }
+
+  .milestone-text {
+    font-size: 14px;
+    color: var(--star-white);
+    font-weight: 400;
+  }
+
+  .milestone.past .milestone-text { opacity: 0.5; text-decoration: line-through; text-decoration-color: rgba(0,255,157,0.3); }
+  .milestone.current .milestone-text { color: var(--solar-gold); font-weight: 500; }
+  .milestone.future .milestone-text { opacity: 0.6; }
+
+  .milestone-tag {
+    margin-left: auto;
+    font-size: 9px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .milestone.past .milestone-tag { background: rgba(0,255,157,0.1); color: var(--aurora-green); border: 1px solid rgba(0,255,157,0.2); }
+  .milestone.current .milestone-tag { background: rgba(255,213,79,0.1); color: var(--solar-gold); border: 1px solid rgba(255,213,79,0.3); }
+  .milestone.future .milestone-tag { background: rgba(0,229,255,0.05); color: var(--text-dim); border: 1px solid rgba(0,229,255,0.1); }
+
+  /* Footer */
+  .footer {
+    width: 100%;
+    padding: 30px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(0,229,255,0.05);
+    margin-top: 40px;
+  }
+
+  .footer-left {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    opacity: 0.5;
+  }
+
+  .heartbeat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .heartbeat-dot {
+    width: 6px; height: 6px;
+    background: var(--aurora-green);
+    border-radius: 50%;
+    animation: heartbeatPulse 2s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(0,255,157,0.5);
+  }
+
+  @keyframes heartbeatPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.6; }
+  }
+
+  /* Shooting star animation */
+  .shooting-star {
+    position: fixed;
+    width: 2px;
+    height: 80px;
+    background: linear-gradient(180deg, transparent, white);
+    border-radius: 1px;
+    animation: shoot 1.5s ease-out forwards;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+  }
+
+  @keyframes shoot {
+    0% { opacity: 0; transform: translateY(0) rotate(30deg); }
+    10% { opacity: 1; }
+    80% { opacity: 0.5; }
+    100% { opacity: 0; transform: translateY(300px) rotate(30deg); }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .header { padding: 24px 24px 16px; }
+    .main-content { padding: 0 20px; gap: 32px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .daily-section { flex-direction: column; padding: 24px; }
+    .mission-title { font-size: 20px; }
+    .footer { padding: 20px 24px; }
+  }
+
+  /* Particle */
+  .particle {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 4;
+    animation: particleFade 4s ease-out forwards;
+  }
+
+  @keyframes particleFade {
+    0% { opacity: 0.8; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-100px) scale(0); }
+  }
+
+  /* Glitch on hover title */
+  .mission-title:hover {
+    animation: glitch 0.3s ease;
+  }
+
+  @keyframes glitch {
+    0%, 100% { transform: none; }
+    20% { transform: skewX(3deg) translateX(-2px); }
+    40% { transform: skewX(-3deg) translateX(2px); }
+    60% { transform: skewX(1deg); }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- Stars -->
+<div class="stars-layer" id="starsLayer"></div>
+<div class="nebula"></div>
+
+<div class="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="mission-badge">
+      <span class="mission-label">Mission Log · T-</span>
+      <span class="mission-title" id="missionTitle">LIBRE<span>2028</span></span>
+    </div>
+    <div class="date-display">
+      <div class="live-date" id="liveDate"></div>
+      <div id="liveDayOfYear"></div>
+      <div id="liveWeek"></div>
+    </div>
+  </header>
+
+  <!-- Main content -->
+  <main class="main-content">
+
+    <!-- Hero progress number -->
+    <div class="hero-progress">
+      <div class="progress-percentage" id="heroPercent">--</div>
+      <div class="progress-label">de la mission accomplie</div>
+      <div class="progress-subtitle" id="heroSubtitle">Calcul en cours…</div>
+    </div>
+
+    <!-- Orbit track with rocket -->
+    <div class="orbit-section">
+      <div class="orbit-track">
+        <div class="orbit-line"></div>
+        <div class="track-start">
+          <span class="track-marker-icon">🌍</span>
+          <span class="track-marker-label">Départ</span>
+          <span class="track-marker-date">Fév 2017</span>
+        </div>
+        <div class="track-end">
+          <span class="track-marker-icon">🪐</span>
+          <span class="track-marker-label">Destination</span>
+          <span class="track-marker-date">Déc 2028</span>
+        </div>
+        <div class="rocket-container" id="rocketEl">
+          <div class="rocket-trail" id="rocketTrail"></div>
+          <div class="rocket">🚀</div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-bar-section" style="margin-top:20px;">
+        <div class="progress-bar-wrapper">
+          <div class="progress-bar-fill" id="progressBarFill" style="width:0%"></div>
+        </div>
+        <div class="progress-bar-labels">
+          <span>13.02.2017 · DÉCOLLAGE</span>
+          <span id="progressBarMid"></span>
+          <span>31.12.2028 · LIBERTÉ</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon">📅</span>
+        <div class="stat-value accent-cyan" id="statDaysLeft">—</div>
+        <div class="stat-label">Jours restants</div>
+        <div class="stat-sub" id="statWeeksLeft">— semaines</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">✅</span>
+        <div class="stat-value accent-green" id="statDaysDone">—</div>
+        <div class="stat-label">Jours accomplis</div>
+        <div class="stat-sub" id="statMonthsDone">— mois</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📆</span>
+        <div class="stat-value accent-gold" id="statWeekends">—</div>
+        <div class="stat-label">Week-ends restants</div>
+        <div class="stat-sub">Savoure chacun</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">⚡</span>
+        <div class="stat-value accent-orange" id="statPercDay">—</div>
+        <div class="stat-label">% gagné aujourd'hui</div>
+        <div class="stat-sub">Progression quotidienne</div>
+      </div>
+    </div>
+
+    <!-- Daily message -->
+    <div class="daily-section">
+      <div class="daily-left">
+        <span class="daily-icon-big" id="dailyIcon">⭐</span>
+      </div>
+      <div class="daily-right">
+        <div class="daily-title">✦ Message du jour</div>
+        <div class="daily-message" id="dailyMessage">Chargement du message…</div>
+        <div class="daily-streak">
+          <span class="streak-label">Semaine :</span>
+          <div class="streak-days" id="streakDays"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Milestones -->
+    <div class="milestones-section">
+      <div class="section-header">
+        <span class="section-title">Étapes orbitales</span>
+        <div class="section-line"></div>
+      </div>
+      <div class="milestones-list" id="milestonesList"></div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-left">MISSION LIBRE2028 · DAVID · MONTRÉAL</div>
+    <div class="heartbeat">
+      <div class="heartbeat-dot"></div>
+      Telémétrie en direct
+    </div>
+  </footer>
+</div>
+
+<script>
+// ─── Config ────────────────────────────────────────────────────────────────
+const START = new Date('2017-02-13T00:00:00');
+const END   = new Date('2028-12-31T23:59:59');
+
+const MILESTONES = [
+  { date: '2017-02-13', label: 'Décollage — Début de carrière', tag: 'Accompli' },
+  { date: '2019-02-13', label: '2 ans en orbite', tag: 'Accompli' },
+  { date: '2021-02-13', label: '4 ans · Cap à mi-parcours', tag: 'Accompli' },
+  { date: '2022-02-13', label: '5 ans de vol', tag: 'Accompli' },
+  { date: '2024-02-13', label: '7 ans · La majorité est derrière toi', tag: 'Accompli' },
+  { date: '2025-02-13', label: '8 ans · Compte à rebours enclenché', tag: 'Accompli' },
+  { date: '2026-12-31', label: 'Fin de l\'avant-dernière année', tag: 'Prochain' },
+  { date: '2027-12-31', label: 'Un an avant la liberté', tag: 'À venir' },
+  { date: '2028-06-30', label: 'Dernière ligne droite · 6 mois', tag: 'À venir' },
+  { date: '2028-10-01', label: 'Compte à rebours final · 90 jours', tag: 'À venir' },
+  { date: '2028-12-31', label: '🎉 LIBERTÉ · Retraite effective', tag: 'Destination' },
+];
+
+const DAILY_MESSAGES = [
+  { icon: '🚀', msg: 'Chaque jour de travail accompli est un jour de <strong>liberté gagné</strong>. Tu avances.' },
+  { icon: '🚵', msg: 'Le Devinci attend. Les sentiers t\'attendent. <strong>La retraite approche</strong> à chaque rotation de la Terre.' },
+  { icon: '🗾', msg: 'Dans quelques années, 6 mois au Japon avec Marie-Hélène. <strong>Imagine ce premier matin à Tokyo.</strong>' },
+  { icon: '🏔️', msg: 'Les montagnes, les sentiers, les matins sans agenda. <strong>Tout ça t\'attend de l\'autre côté.</strong>' },
+  { icon: '⭐', msg: 'Tu as déjà parcouru plus des deux tiers du chemin. <strong>La trajectoire est bonne.</strong> Continue.' },
+  { icon: '🎯', msg: 'La discipline d\'aujourd\'hui construit la liberté de demain. <strong>Chaque jour compte.</strong>' },
+  { icon: '🌅', msg: 'Un matin, bientôt, le réveil ne sonnera plus pour le travail. <strong>Ce jour arrive.</strong>' },
+  { icon: '🛤️', msg: 'Le cycle-camping au bout d\'une route sans deadline. <strong>Bientôt, ce sera ton quotidien.</strong>' },
+  { icon: '💡', msg: 'La retraite, c\'est pas la fin — c\'est le début de <strong>ce que tu as vraiment envie de faire.</strong>' },
+  { icon: '🌙', msg: 'Ce soir, tu es un jour de plus dans le bon sens. <strong>Demain, encore un.</strong> C\'est ainsi que ça marche.' },
+  { icon: '🧭', msg: 'Cap maintenu. Systèmes opérationnels. <strong>Mission en bonne voie.</strong>' },
+  { icon: '🎸', msg: 'Le temps libre sera long. Les projets seront nombreux. <strong>Tu les mérites tous.</strong>' },
+  { icon: '🌊', msg: 'La liberté, ça ne s\'achète pas — ça se construit. <strong>Tu la bâtis, brique par brique, jour après jour.</strong>' },
+  { icon: '🦅', msg: 'Un jour tu regarderas en arrière et tu te diras : <strong>j\'ai tenu le cap.</strong> Ce jour-là, tu seras fier.' },
+  { icon: '🌿', msg: 'Pense à un mardi matin de juillet, sur un sentier quelque part au Québec, sans aucune réunion à l\'horizon. <strong>C\'est ça qui t\'attend.</strong>' },
+  { icon: '📖', msg: 'Tous les livres que tu n\'as pas eu le temps de lire. Tous les films. Tous les projets. <strong>Ils t\'attendent patiemment.</strong>' },
+  { icon: '☕', msg: 'Un café bu lentement, sans regarder l\'heure. <strong>Un luxe banal qui deviendra ton quotidien.</strong>' },
+  { icon: '🗺️', msg: 'Marie-Hélène et toi, une carte dépliée sur une table, aucune contrainte d\'agenda. <strong>Où est-ce qu\'on va?</strong>' },
+  { icon: '🌸', msg: 'Le Japon en janvier. La neige à Kyoto. Les temples silencieux. <strong>Ça s\'en vient.</strong>' },
+  { icon: '🏕️', msg: 'Une tente montée quelque part, le silence de la forêt, aucune notification. <strong>C\'est le plan.</strong>' },
+  { icon: '⏳', msg: 'Tu as déjà traversé des hivers difficiles, des projets exigeants. <strong>Tu sais que tu peux tenir.</strong>' },
+  { icon: '🎬', msg: 'Tous ces films et séries que tu veux voir sans te sentir coupable de prendre le temps. <strong>Bientôt, ce sera normal.</strong>' },
+  { icon: '🌍', msg: 'La retraite, c\'est aussi du temps pour regarder le monde autrement — <strong>sans la pression du lundi matin.</strong>' },
+  { icon: '💪', msg: 'Neuf ans de carrière déjà derrière toi. Ce n\'est pas rien. <strong>Tu as gagné chaque jour de liberté qui vient.</strong>' },
+  { icon: '🌻', msg: 'Chaque saison qui passe est une saison de moins à travailler. <strong>Savoure chacune d\'elles.</strong>' },
+  { icon: '🎒', msg: 'Un sac sur le dos, le Devinci chargé, une semaine devant toi sans destination fixe. <strong>Ça, c\'est la retraite.</strong>' },
+  { icon: '🔭', msg: 'Tu vises loin, tu vises juste. <strong>La cible est en vue.</strong> Ne lâche pas.' },
+  { icon: '🛶', msg: 'Le temps qui passe n\'est pas perdu — il est <strong>investi dans ta liberté future.</strong>' },
+  { icon: '🦋', msg: 'La transformation est déjà en cours. <strong>Tu n\'es plus au début.</strong> Tu es presque de l\'autre côté.' },
+  { icon: '🌄', msg: 'Un lever de soleil vu depuis un sommet, un mardi, parce que tu en as envie. <strong>Pas si loin.</strong>' },
+  { icon: '🎵', msg: 'Du temps pour la musique, le théâtre, le cinéma — <strong>pas en coup de vent, mais vraiment.</strong>' },
+  { icon: '🧘', msg: 'La liberté de ne rien planifier. De laisser la journée se dérouler. <strong>Ce luxe existe. Tu y arrives.</strong>' },
+  { icon: '🏞️', msg: 'Le Québec est grand. Les pistes sont longues. <strong>Tu auras tout le temps de les explorer.</strong>' },
+  { icon: '🌮', msg: 'Déjeuner à midi, pas à 12h00 pile parce que ton agenda le dit. <strong>Les petites libertés comptent aussi.</strong>' },
+  { icon: '🚂', msg: 'Un train pour nulle part un mercredi matin, juste pour voir. <strong>Bientôt, pourquoi pas.</strong>' },
+  { icon: '📷', msg: 'Des heures à photographier ce qui t\'intéresse, sans compter le temps. <strong>Tu y penses déjà.</strong>' },
+  { icon: '🌺', msg: 'Marie-Hélène enseigne, toi tu explores. <strong>Chacun sa liberté, ensemble dans la vie.</strong>' },
+  { icon: '🧩', msg: 'La retraite, c\'est pas l\'absence de projets — c\'est la liberté de <strong>choisir lesquels.</strong>' },
+  { icon: '🐻', msg: 'Dormir sans alarme. Se lever quand le corps est prêt. <strong>Un luxe humain fondamental. Il approche.</strong>' },
+  { icon: '🌐', msg: 'Le Japon, et après? L\'Amérique du Sud? L\'Europe à vélo? <strong>La carte est grande, le temps sera tien.</strong>' },
+  { icon: '🏯', msg: 'Marcher dans Kyoto sans savoir l\'heure qu\'il est. <strong>Perdre la notion du temps — en vacances permanentes.</strong>' },
+  { icon: '🍁', msg: 'Un automne québécois, un sentier en feu de couleurs, aucune urgence. <strong>Chaque saison sera la tienne.</strong>' },
+  { icon: '🌌', msg: 'Tu construis quelque chose que personne ne peut t\'enlever : <strong>du temps libre sur une vie entière.</strong>' },
+  { icon: '🎯', msg: 'La ligne d\'arrivée n\'est pas un rêve flou — elle est précise, datée, planifiée. <strong>31 décembre 2028.</strong>' },
+  { icon: '🦊', msg: 'Il ne s\'agit pas de survivre jusqu\'à la retraite — il s\'agit d\'<strong>arriver en pleine forme</strong> pour en profiter.' },
+  { icon: '💎', msg: 'Chaque journée de travail est une pièce déposée dans la tirelire de ta liberté. <strong>Elle se remplit.</strong>' },
+  { icon: '🌙', msg: 'Ce soir avant de dormir : une journée de plus. <strong>Demain matin : une journée de moins.</strong> Ça marche dans les deux sens.' },
+  { icon: '🎪', msg: 'La vie après le travail n\'est pas vide — elle est <strong>pleine de ce que toi tu décides d\'y mettre.</strong>' },
+  { icon: '🏄', msg: 'Tu n\'attends pas la retraite pour vivre — mais tu sais que <strong>le meilleur chapitre reste à écrire.</strong>' },
+  { icon: '✨', msg: 'Mission LIBRE2028. En bonne voie. <strong>Cap maintenu. Tu vas y arriver.</strong>' },
+];
+
+// ─── Utilities ────────────────────────────────────────────────────────────
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function getProgress(now) {
+  const total = END - START;
+  const elapsed = now - START;
+  return Math.max(0, Math.min(100, (elapsed / total) * 100));
+}
+
+function daysBetween(a, b) {
+  return Math.round((b - a) / 86400000);
+}
+
+function weekendsBetween(a, b) {
+  let count = 0;
+  let d = new Date(a);
+  while (d <= b) {
+    if (d.getDay() === 0 || d.getDay() === 6) count++;
+    d.setDate(d.getDate() + 1);
+  }
+  return Math.floor(count / 2);
+}
+
+// ─── Stars ─────────────────────────────────────────────────────────────────
+function createStars() {
+  const layer = document.getElementById('starsLayer');
+  for (let i = 0; i < 200; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const delay = Math.random() * 4;
+    const dur = 2 + Math.random() * 4;
+    const minOp = 0.05 + Math.random() * 0.2;
+    const maxOp = 0.4 + Math.random() * 0.6;
+    s.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${x}%; top:${y}%;
+      animation-delay:${delay}s;
+      --d:${dur}s; --min-op:${minOp}; --max-op:${maxOp};
+    `;
+    layer.appendChild(s);
+  }
+}
+
+// ─── Shooting stars ─────────────────────────────────────────────────────────
+function launchShootingStar() {
+  const star = document.createElement('div');
+  star.className = 'shooting-star';
+  star.style.left = Math.random() * 80 + 10 + '%';
+  star.style.top = Math.random() * 40 + '%';
+  document.body.appendChild(star);
+  setTimeout(() => star.remove(), 1500);
+}
+
+setInterval(launchShootingStar, 8000);
+setTimeout(launchShootingStar, 2000);
+
+// ─── Cursor ──────────────────────────────────────────────────────────────
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursorDot');
+let mx = 0, my = 0, cx = 0, cy = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursorDot.style.left = mx + 'px';
+  cursorDot.style.top = my + 'px';
+});
+
+(function animCursor() {
+  cx += (mx - cx) * 0.12;
+  cy += (my - cy) * 0.12;
+  cursor.style.left = cx + 'px';
+  cursor.style.top = cy + 'px';
+  requestAnimationFrame(animCursor);
+})();
+
+// ─── Main update ─────────────────────────────────────────────────────────
+function update() {
+  const now = new Date();
+  const pct = getProgress(now);
+
+  // Header date
+  const months = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+  const days = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+  document.getElementById('liveDate').textContent =
+    `${days[now.getDay()]} ${pad(now.getDate())} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const dayOfYear = Math.ceil((now - startOfYear) / 86400000);
+  document.getElementById('liveDayOfYear').textContent = `Jour ${dayOfYear} de l'année`;
+
+  const weekNum = Math.ceil(dayOfYear / 7);
+  document.getElementById('liveWeek').textContent = `Semaine ${weekNum}`;
+
+  // Hero percent
+  const pctStr = pct.toFixed(2) + '%';
+  document.getElementById('heroPercent').textContent = pct.toFixed(1) + '%';
+
+  const daysLeft = daysBetween(now, END);
+  const daysDone = daysBetween(START, now);
+  const totalDays = daysBetween(START, END);
+  document.getElementById('heroSubtitle').textContent =
+    `${daysDone.toLocaleString('fr-CA')} jours dans les étoiles · ${daysLeft.toLocaleString('fr-CA')} jours avant la liberté`;
+
+  // Progress bar
+  document.getElementById('progressBarFill').style.width = pct + '%';
+  document.getElementById('progressBarMid').textContent = pctStr + ' ACCOMPLI';
+
+  // Rocket position
+  const rocketEl = document.getElementById('rocketEl');
+  const track = document.querySelector('.orbit-track');
+  const trackWidth = track.offsetWidth;
+  const leftOffset = trackWidth * 0.05;
+  const rightOffset = trackWidth * 0.05;
+  const usableWidth = trackWidth - leftOffset - rightOffset - 48; // rocket width
+  const rocketX = leftOffset + (pct / 100) * usableWidth + 24;
+  rocketEl.style.left = rocketX + 'px';
+
+  // Trail
+  const trail = document.getElementById('rocketTrail');
+  trail.style.width = Math.min(rocketX - leftOffset, 200) + 'px';
+
+  // Stats
+  document.getElementById('statDaysLeft').textContent = daysLeft.toLocaleString('fr-CA');
+  document.getElementById('statWeeksLeft').textContent = Math.ceil(daysLeft / 7).toLocaleString('fr-CA') + ' semaines';
+  document.getElementById('statDaysDone').textContent = daysDone.toLocaleString('fr-CA');
+  document.getElementById('statMonthsDone').textContent = Math.floor(daysDone / 30.44).toFixed(0) + ' mois';
+  document.getElementById('statWeekends').textContent = weekendsBetween(now, END).toLocaleString('fr-CA');
+  const dailyPct = (1 / totalDays * 100).toFixed(3);
+  document.getElementById('statPercDay').textContent = dailyPct + '%';
+
+  // Daily message — spreads 50 messages across 365 days, resets each year
+  const msgIdx = Math.floor((dayOfYear - 1) / 365 * DAILY_MESSAGES.length) % DAILY_MESSAGES.length;
+  const msg = DAILY_MESSAGES[msgIdx];
+  document.getElementById('dailyIcon').textContent = msg.icon;
+  document.getElementById('dailyMessage').innerHTML = msg.msg;
+
+  // Streak — show days of current week
+  const streakEl = document.getElementById('streakDays');
+  streakEl.innerHTML = '';
+  const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay(); // Mon=1
+  for (let i = 1; i <= 7; i++) {
+    const d = document.createElement('div');
+    d.className = 'streak-day' + (i <= dayOfWeek ? ' filled' : '');
+    streakEl.appendChild(d);
+  }
+
+  // Milestones
+  const list = document.getElementById('milestonesList');
+  list.innerHTML = '';
+  MILESTONES.forEach(m => {
+    const mDate = new Date(m.date);
+    const isPast = mDate < now;
+    const isCurrent = m.tag === 'Prochain' || (mDate >= now && !MILESTONES.find(x => x.tag === 'Prochain' && new Date(x.date) < mDate));
+
+    // Determine state
+    let state = 'future';
+    if (isPast) state = 'past';
+    else if (m.tag === 'Prochain') state = 'current';
+
+    const el = document.createElement('div');
+    el.className = `milestone ${state}`;
+
+    const daysToM = daysBetween(now, mDate);
+    const daysInfo = isPast
+      ? `il y a ${Math.abs(daysToM)} j`
+      : `dans ${daysToM} j`;
+
+    el.innerHTML = `
+      <div class="milestone-dot"></div>
+      <span class="milestone-date">${mDate.toLocaleDateString('fr-CA', {year:'numeric',month:'short'})}</span>
+      <span class="milestone-text">${m.label}</span>
+      <span class="milestone-tag">${isPast ? '✓ ' : ''}${m.tag}</span>
+    `;
+    list.appendChild(el);
+  });
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────
+createStars();
+
+// Animate in with slight delay
+setTimeout(() => {
+  update();
+  setInterval(update, 60000); // update every minute
+}, 300);
+
+// Particle burst on click
+document.addEventListener('click', (e) => {
+  for (let i = 0; i < 8; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 6 + 2;
+    const angle = (Math.PI * 2 * i) / 8;
+    const dist = Math.random() * 60 + 20;
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${e.clientX}px; top:${e.clientY}px;
+      background:${['#00e5ff','#00ff9d','#ffd54f','#ff6b35'][Math.floor(Math.random()*4)]};
+      transform:translate(${Math.cos(angle)*dist}px,${Math.sin(angle)*dist}px);
+    `;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 4000);
+  }
+});
+</script>
+</body>
+</html>
