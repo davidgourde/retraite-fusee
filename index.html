@@ -914,6 +914,8 @@ function daySeed(date) {
 }
 
 function dailyMessageIndex(date) {
+  // Deterministic hash so the message stays stable for a given day while still
+  // producing a pseudo-random order from one date to the next.
   const hashSeed = (seed) => {
     let hash = seed | 0;
     hash = Math.imul(hash ^ (hash >>> 16), 0x45d9f3b);
