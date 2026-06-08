@@ -28,29 +28,6 @@
     font-family: 'Space Grotesk', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
-    cursor: none;
-  }
-
-  /* Custom cursor */
-  .cursor {
-    width: 20px; height: 20px;
-    border: 2px solid var(--aurora-cyan);
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s ease, border-color 0.3s;
-    mix-blend-mode: screen;
-  }
-  .cursor-dot {
-    width: 4px; height: 4px;
-    background: var(--aurora-cyan);
-    border-radius: 50%;
-    position: fixed;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
   }
 
   /* Stars background */
@@ -731,9 +708,6 @@
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-dot" id="cursorDot"></div>
-
 <!-- Stars -->
 <div class="stars-layer" id="starsLayer"></div>
 <div class="nebula"></div>
@@ -832,7 +806,7 @@
         <div class="daily-title">✦ Message du jour</div>
         <div class="daily-message" id="dailyMessage">Chargement du message…</div>
         <div class="daily-streak">
-          <span class="streak-label">Semaine :</span>
+          <span class="streak-label">Jours écoulés cette semaine :</span>
           <div class="streak-days" id="streakDays"></div>
         </div>
       </div>
@@ -931,7 +905,35 @@ const DAILY_MESSAGES = [
 ];
 
 // ─── Utilities ────────────────────────────────────────────────────────────
+const MS_PER_DAY = 86400000;
+
 function pad(n) { return String(n).padStart(2, '0'); }
+
+function daySeed(date) {
+  return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / MS_PER_DAY);
+}
+
+function dailyMessageIndex(date) {
+  // Deterministic hash so the message stays stable for a given day while still
+  // producing a pseudo-random order from one date to the next.
+  const hashSeed = (seed) => {
+    let hash = seed | 0;
+    hash = Math.imul(hash ^ (hash >>> 16), 0x45d9f3b);
+    hash = Math.imul(hash ^ (hash >>> 16), 0x45d9f3b);
+    return hash ^ (hash >>> 16);
+  };
+
+  const indexFromSeed = (seed) => Math.abs(hashSeed(seed)) % DAILY_MESSAGES.length;
+  const seed = daySeed(date);
+  const prevIndex = indexFromSeed(seed - 1);
+  let index = indexFromSeed(seed);
+
+  if (index === prevIndex) {
+    index = (index + 1) % DAILY_MESSAGES.length;
+  }
+
+  return index;
+}
 
 function getProgress(now) {
   const total = END - START;
@@ -989,25 +991,6 @@ function launchShootingStar() {
 setInterval(launchShootingStar, 8000);
 setTimeout(launchShootingStar, 2000);
 
-// ─── Cursor ──────────────────────────────────────────────────────────────
-const cursor = document.getElementById('cursor');
-const cursorDot = document.getElementById('cursorDot');
-let mx = 0, my = 0, cx = 0, cy = 0;
-
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  cursorDot.style.left = mx + 'px';
-  cursorDot.style.top = my + 'px';
-});
-
-(function animCursor() {
-  cx += (mx - cx) * 0.12;
-  cy += (my - cy) * 0.12;
-  cursor.style.left = cx + 'px';
-  cursor.style.top = cy + 'px';
-  requestAnimationFrame(animCursor);
-})();
-
 // ─── Main update ─────────────────────────────────────────────────────────
 function update() {
   const now = new Date();
@@ -1020,7 +1003,7 @@ function update() {
     `${days[now.getDay()]} ${pad(now.getDate())} ${months[now.getMonth()]} ${now.getFullYear()}`;
 
   const startOfYear = new Date(now.getFullYear(), 0, 1);
-  const dayOfYear = Math.ceil((now - startOfYear) / 86400000);
+  const dayOfYear = Math.ceil((now - startOfYear) / MS_PER_DAY);
   document.getElementById('liveDayOfYear').textContent = `Jour ${dayOfYear} de l'année`;
 
   const weekNum = Math.ceil(dayOfYear / 7);
@@ -1063,8 +1046,8 @@ function update() {
   const dailyPct = (1 / totalDays * 100).toFixed(3);
   document.getElementById('statPercDay').textContent = dailyPct + '%';
 
-  // Daily message — spreads 50 messages across 365 days, resets each year
-  const msgIdx = Math.floor((dayOfYear - 1) / 365 * DAILY_MESSAGES.length) % DAILY_MESSAGES.length;
+  // Daily message — stable within the day, remapped every day in a pseudo-random order
+  const msgIdx = dailyMessageIndex(now);
   const msg = DAILY_MESSAGES[msgIdx];
   document.getElementById('dailyIcon').textContent = msg.icon;
   document.getElementById('dailyMessage').innerHTML = msg.msg;
@@ -1073,6 +1056,9 @@ function update() {
   const streakEl = document.getElementById('streakDays');
   streakEl.innerHTML = '';
   const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay(); // Mon=1
+  const streakSummary = `${dayOfWeek} jour${dayOfWeek > 1 ? 's' : ''} écoulé${dayOfWeek > 1 ? 's' : ''} dans la semaine en cours sur 7`;
+  streakEl.setAttribute('title', streakSummary);
+  streakEl.setAttribute('aria-label', streakSummary);
   for (let i = 1; i <= 7; i++) {
     const d = document.createElement('div');
     d.className = 'streak-day' + (i <= dayOfWeek ? ' filled' : '');
